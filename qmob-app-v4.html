@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Qmob">
+    <meta name="theme-color" content="#0f172a">
+    <title>Qmob Avaliador v4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg: #f1f5f9; --card: #ffffff; --primary: #0f172a; --accent: #6366f1;
+            --text: #1e293b; --text-light: #64748b; --text-muted: #94a3b8;
+            --border: #e2e8f0; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --radius: 12px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        html, body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; min-height: 100vh; }
+        
+        /* Header */
+        .header { background: var(--primary); padding: 16px 20px; padding-top: max(16px, env(safe-area-inset-top)); position: sticky; top: 0; z-index: 100; }
+        .header-row { display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 10px; color: white; }
+        .logo-box { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.125rem; }
+        .logo-text { font-size: 1.25rem; font-weight: 700; }
+        .header-badge { font-size: 0.6875rem; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 100px; color: rgba(255,255,255,0.8); }
+        .progress-track { height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 14px; }
+        .progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+        
+        /* Tabs */
+        .tabs-wrap { background: var(--card); padding: 10px 16px; border-bottom: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tabs-wrap::-webkit-scrollbar { display: none; }
+        .tabs { display: flex; gap: 6px; min-width: max-content; }
+        .tab { padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: var(--text-light); background: transparent; border: none; cursor: pointer; white-space: nowrap; }
+        .tab.active { background: var(--primary); color: white; }
+        .tab-num { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; background: var(--border); border-radius: 50%; font-size: 0.625rem; margin-right: 4px; }
+        .tab.active .tab-num { background: rgba(255,255,255,0.25); }
+        
+        /* Main */
+        .main { padding: 16px; padding-bottom: calc(90px + env(safe-area-inset-bottom)); max-width: 600px; margin: 0 auto; }
+        .section { display: none; animation: fadeIn 0.3s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Section header */
+        .sec-header { margin-bottom: 20px; }
+        .sec-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .sec-subtitle { font-size: 0.875rem; color: var(--text-light); }
+        .sec-weight { display: inline-block; margin-top: 8px; padding: 4px 10px; background: var(--accent); color: white; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
+        
+        /* Cards */
+        .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+        .card-title { font-size: 0.875rem; font-weight: 600; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .card-title .emoji { font-size: 1.125rem; }
+        .card-title .weight { margin-left: auto; font-size: 0.6875rem; color: var(--text-muted); background: var(--bg); padding: 2px 8px; border-radius: 100px; }
+        
+        /* Form elements */
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .label { display: block; font-size: 0.8125rem; font-weight: 500; color: var(--text-light); margin-bottom: 6px; }
+        .input { width: 100%; padding: 12px 14px; font-size: 1rem; font-family: inherit; border: 2px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); }
+        .input:focus { outline: none; border-color: var(--accent); }
+        .input::placeholder { color: var(--text-muted); }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .input-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .select { width: 100%; padding: 12px 14px; font-size: 1rem; font-family: inherit; border: 2px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%2394a3b8'%3E%3Cpath d='M5 8l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+        .textarea { width: 100%; min-height: 80px; padding: 12px 14px; font-size: 0.9375rem; font-family: inherit; border: 2px solid var(--border); border-radius: 10px; resize: vertical; }
+        .textarea:focus { outline: none; border-color: var(--accent); }
+        
+        /* Rating */
+        .rating-group { margin-bottom: 16px; }
+        .rating-group:last-child { margin-bottom: 0; }
+        .rating-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .rating-name { font-size: 0.875rem; font-weight: 500; color: var(--text); }
+        .rating-value { font-size: 0.8125rem; font-weight: 700; color: var(--accent); }
+        .rating-hint { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+        .rating-btns { display: flex; gap: 8px; }
+        .rating-btn { flex: 1; height: 44px; border: 2px solid var(--border); border-radius: 10px; background: var(--card); font-size: 1rem; font-weight: 700; color: var(--text-light); cursor: pointer; transition: all 0.15s; }
+        .rating-btn:active { transform: scale(0.95); }
+        .rating-btn.selected { color: white; border-color: transparent; }
+        .rating-btn.selected[data-v="1"] { background: #ef4444; }
+        .rating-btn.selected[data-v="2"] { background: #f97316; }
+        .rating-btn.selected[data-v="3"] { background: #eab308; }
+        .rating-btn.selected[data-v="4"] { background: #22c55e; }
+        .rating-btn.selected[data-v="5"] { background: #10b981; }
+        
+        /* Measure row */
+        .measure-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .measure-row .input { width: 100px; text-align: center; font-weight: 600; }
+        .measure-unit { font-size: 0.875rem; color: var(--text-light); }
+        
+        /* Checklist */
+        .checklist { display: flex; flex-direction: column; gap: 8px; }
+        .check-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg); border-radius: 10px; cursor: pointer; transition: all 0.15s; }
+        .check-item:active { transform: scale(0.98); }
+        .check-item.checked { background: #dcfce7; }
+        .check-box { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: transparent; flex-shrink: 0; }
+        .check-item.checked .check-box { background: var(--success); border-color: var(--success); color: white; }
+        .check-text { font-size: 0.875rem; color: var(--text); }
+        
+        /* Divider */
+        .divider { font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 12px; }
+        
+        /* Indicators */
+        .indicator { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg); border-radius: 10px; margin-bottom: 8px; }
+        .indicator:last-child { margin-bottom: 0; }
+        .indicator-label { font-size: 0.8125rem; color: var(--text); }
+        .indicator-value { font-size: 0.9375rem; font-weight: 700; padding: 4px 12px; border-radius: 6px; }
+        .indicator-value.green { background: #dcfce7; color: #166534; }
+        .indicator-value.yellow { background: #fef3c7; color: #92400e; }
+        .indicator-value.red { background: #fee2e2; color: #991b1b; }
+        .indicator-value.neutral { background: var(--border); color: var(--text); }
+        
+        /* Solar orientation */
+        .solar-grid { display: flex; flex-direction: column; gap: 12px; }
+        .solar-room { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg); border-radius: 10px; }
+        .solar-room-name { font-size: 0.875rem; font-weight: 500; min-width: 70px; }
+        .solar-options { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+        .solar-opt { padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: var(--card); border: 2px solid var(--border); cursor: pointer; }
+        .solar-opt:active { transform: scale(0.95); }
+        .solar-opt.selected { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+        
+        /* Radio group */
+        .radio-group { display: flex; flex-direction: column; gap: 8px; }
+        .radio-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bg); border-radius: 10px; cursor: pointer; border: 2px solid transparent; }
+        .radio-item:active { transform: scale(0.98); }
+        .radio-item.selected { background: #e0e7ff; border-color: var(--accent); }
+        .radio-circle { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .radio-item.selected .radio-circle { border-color: var(--accent); }
+        .radio-item.selected .radio-circle::after { content: ''; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+        .radio-text { font-size: 0.875rem; color: var(--text); }
+        
+        /* Photo grid */
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .photo-slot { aspect-ratio: 1; background: var(--bg); border: 2px dashed var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background-size: cover; background-position: center; }
+        .photo-slot:active { transform: scale(0.95); }
+        .photo-slot .icon { font-size: 1.5rem; margin-bottom: 4px; }
+        .photo-slot .text { font-size: 0.625rem; color: var(--text-muted); text-align: center; }
+        .photo-slot.has-photo { border-style: solid; border-color: var(--success); }
+        .photo-slot.has-photo .icon, .photo-slot.has-photo .text { display: none; }
+        
+        /* Score display */
+        .score-card { background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%); border-radius: var(--radius); padding: 28px; text-align: center; color: white; margin-bottom: 16px; }
+        .score-number { font-size: 4.5rem; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 0.875rem; opacity: 0.7; margin-top: 4px; }
+        .score-badge { display: inline-block; margin-top: 12px; padding: 6px 16px; background: rgba(255,255,255,0.2); border-radius: 100px; font-size: 0.875rem; font-weight: 600; }
+        
+        /* Dimension bars */
+        .dim-item { margin-bottom: 14px; }
+        .dim-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .dim-name { font-size: 0.8125rem; font-weight: 500; color: var(--text); }
+        .dim-value { font-size: 0.8125rem; font-weight: 700; color: var(--text-light); }
+        .dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .dim-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        
+        /* Bottom nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); display: flex; gap: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.08); z-index: 100; }
+        .btn { flex: 1; padding: 14px 20px; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; font-family: inherit; border: none; cursor: pointer; }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: var(--bg); color: var(--text-light); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-row">
+            <div class="logo"><div class="logo-box">Q</div><span class="logo-text">Qmob</span></div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button id="btnNovaAvaliacao" style="background: rgba(255,255,255,0.15); border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.6875rem; font-weight: 600; cursor: pointer;">🔄 Nova</button>
+                <span class="header-badge">v4</span>
+            </div>
+        </div>
+        <div class="progress-track"><div class="progress-bar" id="progress" style="width: 11%"></div></div>
+    </header>
+
+    <div class="tabs-wrap">
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-i="0"><span class="tab-num">1</span>Dados</button>
+            <button class="tab" data-i="1"><span class="tab-num">2</span>Entorno</button>
+            <button class="tab" data-i="2"><span class="tab-num">3</span>Edifício</button>
+            <button class="tab" data-i="3"><span class="tab-num">4</span>Imóvel</button>
+            <button class="tab" data-i="4"><span class="tab-num">5</span>Acabam.</button>
+            <button class="tab" data-i="5"><span class="tab-num">6</span>Posição</button>
+            <button class="tab" data-i="6"><span class="tab-num">7</span>Fotos</button>
+            <button class="tab" data-i="7"><span class="tab-num">8</span>Resumo</button>
+        </div>
+    </div>
+
+    <main class="main">
+        <!-- SEÇÃO 1: DADOS -->
+        <section class="section active" data-s="0">
+            <div class="sec-header">
+                <h1 class="sec-title">Dados do Imóvel</h1>
+                <p class="sec-subtitle">Informações básicas para identificação</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📍</span> Localização</div>
+                <div class="form-group">
+                    <label class="label">Endereço completo</label>
+                    <input type="text" class="input" id="endereco" placeholder="Rua, número, complemento">
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Bairro</label><input type="text" class="input" id="bairro" placeholder="Ex: Moinhos de Vento"></div>
+                    <div class="form-group"><label class="label">CEP</label><input type="text" class="input" id="cep" placeholder="00000-000"></div>
+                </div>
+                <div class="form-group">
+                    <label class="label">Quadrante</label>
+                    <select class="select" id="quadrante">
+                        <option value="">🔍 Detectar automaticamente...</option>
+                        <option value="Q1">Q1 - Moinhos de Vento Premium</option>
+                        <option value="Q2">Q2 - Moinhos/Aux/Mont'Serrat</option>
+                        <option value="Q3">Q3 - Rio Branco</option>
+                        <option value="Q4">Q4 - Auxiliadora/Higienópolis</option>
+                        <option value="Q5">Q5 - Bela Vista</option>
+                        <option value="Q6">Q6 - Rio Branco/Bom Fim</option>
+                        <option value="Q7">Q7 - Higienópolis/São João</option>
+                        <option value="Q8">Q8 - Bom Fim/Independência</option>
+                        <option value="Q9">Q9 - Petrópolis</option>
+                    </select>
+                    <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 6px;">💡 Digite o endereço completo acima e clique em "Buscar Dados" para detecção automática</p>
+                </div>
+                <button type="button" class="btn btn-primary" id="btnBuscarDados" style="width: 100%; margin-top: 8px;">🔍 Buscar Dados do Endereço</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📐</span> Características</div>
+                <div class="input-row-3">
+                    <div class="form-group"><label class="label">Área (m²)</label><input type="number" class="input" id="area" placeholder="0"></div>
+                    <div class="form-group"><label class="label">Quartos</label><input type="number" class="input" id="quartos" placeholder="0"></div>
+                    <div class="form-group"><label class="label">Suítes</label><input type="number" class="input" id="suites" placeholder="0"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Vagas</label><input type="number" class="input" id="vagas" placeholder="0"></div>
+                    <div class="form-group"><label class="label">Andar</label><input type="number" class="input" id="andar" placeholder="0"></div>
+                </div>
+                <div class="form-group"><label class="label">Ano de construção</label><input type="number" class="input" id="anoConstrucao" placeholder="Ex: 1995"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">💰</span> Valores</div>
+                <div class="form-group"><label class="label">Valor pedido (R$)</label><input type="text" class="input" id="valorPedido" placeholder="0,00"></div>
+                <div class="form-group"><label class="label">Condomínio (R$)</label><input type="text" class="input" id="valorCondominio" placeholder="0,00"></div>
+                <div class="form-group"><label class="label">IPTU anual (R$)</label><input type="text" class="input" id="iptu" placeholder="0,00"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📊</span> Indicadores Calculados</div>
+                <div class="indicator"><span class="indicator-label">R$/m² do imóvel</span><span class="indicator-value neutral" id="indPrecoM2">--</span></div>
+                <div class="indicator"><span class="indicator-label">R$/m² do condomínio</span><span class="indicator-value neutral" id="indCondM2">--</span></div>
+                <div class="indicator"><span class="indicator-label">Idade do prédio</span><span class="indicator-value neutral" id="indIdade">--</span></div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 2: ENTORNO -->
+        <section class="section" data-s="1">
+            <div class="sec-header">
+                <h1 class="sec-title">O Entorno</h1>
+                <p class="sec-subtitle">Localização e infraestrutura urbana</p>
+                <span class="sec-weight">Peso: 30%</span>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🛣️</span> Via e Calçada <span class="weight">4%</span></div>
+                <div class="form-group">
+                    <label class="label">Tipo de via</label>
+                    <select class="select" id="tipoVia"><option value="">Selecione...</option><option value="rua">Rua</option><option value="avenida">Avenida</option><option value="travessa">Travessa</option><option value="alameda">Alameda</option></select>
+                </div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Estado do pavimento</span><span class="rating-value" id="v_pavimento">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="pavimento" data-v="1">1</button>
+                        <button class="rating-btn" data-f="pavimento" data-v="2">2</button>
+                        <button class="rating-btn" data-f="pavimento" data-v="3">3</button>
+                        <button class="rating-btn" data-f="pavimento" data-v="4">4</button>
+                        <button class="rating-btn" data-f="pavimento" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🌙</span> Segurança Noturna <span class="weight">23%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Sensação de segurança</span><span class="rating-value" id="v_segNoturna">--</span></div>
+                    <div class="rating-hint">Iluminação, movimento, comércio</div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="segNoturna" data-v="1">1</button>
+                        <button class="rating-btn" data-f="segNoturna" data-v="2">2</button>
+                        <button class="rating-btn" data-f="segNoturna" data-v="3">3</button>
+                        <button class="rating-btn" data-f="segNoturna" data-v="4">4</button>
+                        <button class="rating-btn" data-f="segNoturna" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🚌</span> Mobilidade <span class="weight">18%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Acesso a transporte</span><span class="rating-value" id="v_mobilidade">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="mobilidade" data-v="1">1</button>
+                        <button class="rating-btn" data-f="mobilidade" data-v="2">2</button>
+                        <button class="rating-btn" data-f="mobilidade" data-v="3">3</button>
+                        <button class="rating-btn" data-f="mobilidade" data-v="4">4</button>
+                        <button class="rating-btn" data-f="mobilidade" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="passaOnibus"><div class="check-box">✓</div><span class="check-text">Passa ônibus na rua</span></div>
+                    <div class="check-item" data-c="ruaSemSaida"><div class="check-box">✓</div><span class="check-text">Rua sem saída</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🛒</span> Supermercados <span class="weight">18%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Disponibilidade (1km)</span><span class="rating-value" id="v_super">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="super" data-v="1">1</button>
+                        <button class="rating-btn" data-f="super" data-v="2">2</button>
+                        <button class="rating-btn" data-f="super" data-v="3">3</button>
+                        <button class="rating-btn" data-f="super" data-v="4">4</button>
+                        <button class="rating-btn" data-f="super" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🍽️</span> Restaurantes/Cafés <span class="weight">18%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Variedade e qualidade</span><span class="rating-value" id="v_restaurantes">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="restaurantes" data-v="1">1</button>
+                        <button class="rating-btn" data-f="restaurantes" data-v="2">2</button>
+                        <button class="rating-btn" data-f="restaurantes" data-v="3">3</button>
+                        <button class="rating-btn" data-f="restaurantes" data-v="4">4</button>
+                        <button class="rating-btn" data-f="restaurantes" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🏋️</span> Academias/Parques <span class="weight">19%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Opções de lazer</span><span class="rating-value" id="v_academias">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="academias" data-v="1">1</button>
+                        <button class="rating-btn" data-f="academias" data-v="2">2</button>
+                        <button class="rating-btn" data-f="academias" data-v="3">3</button>
+                        <button class="rating-btn" data-f="academias" data-v="4">4</button>
+                        <button class="rating-btn" data-f="academias" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 3: EDIFÍCIO -->
+        <section class="section" data-s="2">
+            <div class="sec-header">
+                <h1 class="sec-title">O Edifício</h1>
+                <p class="sec-subtitle">Estrutura e gestão condominial</p>
+                <span class="sec-weight">Peso: 25%</span>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🛗</span> Elevadores <span class="weight">15%</span></div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Quantidade</label><input type="number" class="input" id="qtdElevadores" placeholder="0"></div>
+                    <div class="form-group"><label class="label">Fabricante</label><input type="text" class="input" id="fabricanteElevador" placeholder="Ex: Otis"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Ano fabricação</label><input type="number" class="input" id="anoElevador" placeholder="Ex: 1995"></div>
+                    <div class="form-group"><label class="label">Última modernização</label><input type="number" class="input" id="anoModernizacao" placeholder="Ex: 2020"></div>
+                </div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Estado da cabine</span><span class="rating-value" id="v_elevador">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="elevador" data-v="1">1</button>
+                        <button class="rating-btn" data-f="elevador" data-v="2">2</button>
+                        <button class="rating-btn" data-f="elevador" data-v="3">3</button>
+                        <button class="rating-btn" data-f="elevador" data-v="4">4</button>
+                        <button class="rating-btn" data-f="elevador" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="indicator" style="margin-top: 12px;"><span class="indicator-label">Tempo desde modernização</span><span class="indicator-value neutral" id="indElevador">--</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🔐</span> Segurança <span class="weight">20%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Nível de segurança</span><span class="rating-value" id="v_segPredio">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="segPredio" data-v="1">1</button>
+                        <button class="rating-btn" data-f="segPredio" data-v="2">2</button>
+                        <button class="rating-btn" data-f="segPredio" data-v="3">3</button>
+                        <button class="rating-btn" data-f="segPredio" data-v="4">4</button>
+                        <button class="rating-btn" data-f="segPredio" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="portaria24h"><div class="check-box">✓</div><span class="check-text">Portaria 24h presencial</span></div>
+                    <div class="check-item" data-c="portariaRemota"><div class="check-box">✓</div><span class="check-text">Portaria remota</span></div>
+                    <div class="check-item" data-c="cftv"><div class="check-box">✓</div><span class="check-text">CFTV (câmeras)</span></div>
+                    <div class="check-item" data-c="biometria"><div class="check-box">✓</div><span class="check-text">Biometria/Cartão</span></div>
+                    <div class="check-item" data-c="clausura"><div class="check-box">✓</div><span class="check-text">Clausura</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🏗️</span> Fachada <span class="weight">22.5%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Estado da fachada</span><span class="rating-value" id="v_fachada">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="fachada" data-v="1">1</button>
+                        <button class="rating-btn" data-f="fachada" data-v="2">2</button>
+                        <button class="rating-btn" data-f="fachada" data-v="3">3</button>
+                        <button class="rating-btn" data-f="fachada" data-v="4">4</button>
+                        <button class="rating-btn" data-f="fachada" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="form-group"><label class="label">Ano última reforma</label><input type="number" class="input" id="anoFachada" placeholder="Ex: 2018"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🚪</span> Áreas Comuns <span class="weight">22.5%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Hall, corredores</span><span class="rating-value" id="v_areasComuns">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="areasComuns" data-v="1">1</button>
+                        <button class="rating-btn" data-f="areasComuns" data-v="2">2</button>
+                        <button class="rating-btn" data-f="areasComuns" data-v="3">3</button>
+                        <button class="rating-btn" data-f="areasComuns" data-v="4">4</button>
+                        <button class="rating-btn" data-f="areasComuns" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🚗</span> Garagem <span class="weight">15%</span></div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Largura (m)</label><input type="number" step="0.1" class="input" id="larguraVaga" placeholder="2.5"></div>
+                    <div class="form-group"><label class="label">Comprimento (m)</label><input type="number" step="0.1" class="input" id="comprimentoVaga" placeholder="5.0"></div>
+                </div>
+                <div class="form-group">
+                    <label class="label">Tipo de vaga</label>
+                    <select class="select" id="tipoVaga"><option value="">Selecione...</option><option value="simples">Simples</option><option value="dupla">Dupla (uma atrás da outra)</option><option value="tripla">Tripla</option></select>
+                </div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Qualidade geral</span><span class="rating-value" id="v_garagem">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="garagem" data-v="1">1</button>
+                        <button class="rating-btn" data-f="garagem" data-v="2">2</button>
+                        <button class="rating-btn" data-f="garagem" data-v="3">3</button>
+                        <button class="rating-btn" data-f="garagem" data-v="4">4</button>
+                        <button class="rating-btn" data-f="garagem" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="vagaCoberta"><div class="check-box">✓</div><span class="check-text">Coberta</span></div>
+                    <div class="check-item" data-c="tomadaEV"><div class="check-box">✓</div><span class="check-text">Tomada EV</span></div>
+                    <div class="check-item" data-c="depositoBox"><div class="check-box">✓</div><span class="check-text">Depósito/Box</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📊</span> Saúde Condominial <span class="weight">5%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Gestão financeira</span><span class="rating-value" id="v_saudeCond">--</span></div>
+                    <div class="rating-hint">Fundo de reserva, inadimplência</div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="saudeCond" data-v="1">1</button>
+                        <button class="rating-btn" data-f="saudeCond" data-v="2">2</button>
+                        <button class="rating-btn" data-f="saudeCond" data-v="3">3</button>
+                        <button class="rating-btn" data-f="saudeCond" data-v="4">4</button>
+                        <button class="rating-btn" data-f="saudeCond" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist" style="margin-bottom: 12px;">
+                    <div class="check-item" data-c="temChamadaExtra"><div class="check-box">✓</div><span class="check-text">Tem chamada extra em andamento</span></div>
+                </div>
+                <div id="chamadaExtraFields" style="display: none;">
+                    <div class="input-row">
+                        <div class="form-group"><label class="label">Valor da parcela (R$)</label><input type="text" class="input" id="valorChamadaExtra" placeholder="0,00"></div>
+                        <div class="form-group"><label class="label">Parcelas restantes</label><input type="number" class="input" id="parcelasChamadaExtra" placeholder="0"></div>
+                    </div>
+                    <div class="form-group"><label class="label">Motivo da chamada</label><input type="text" class="input" id="motivoChamadaExtra" placeholder="Ex: Reforma de fachada"></div>
+                </div>
+                <div class="form-group"><label class="label">Observações</label><textarea class="textarea" id="obsCondominio" placeholder="Fundo de reserva, obras pendentes..."></textarea></div>
+            </div>
+        </section>
+        <!-- SEÇÃO 4: IMÓVEL -->
+        <section class="section" data-s="3">
+            <div class="sec-header">
+                <h1 class="sec-title">O Imóvel</h1>
+                <p class="sec-subtitle">Características internas da unidade</p>
+                <span class="sec-weight">Peso: 30%</span>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">☀️</span> Luminosidade <span class="weight">38%</span></div>
+                <div class="measure-row">
+                    <input type="number" class="input" id="lux" placeholder="0">
+                    <span class="measure-unit">lux medidos às</span>
+                    <input type="time" class="input" id="luxHorario" style="width: 100px;">
+                </div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Avaliação geral</span><span class="rating-value" id="v_luminosidade">--</span></div>
+                    <div class="rating-hint">1 = Escuro | 5 = Excelente luz natural</div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="luminosidade" data-v="1">1</button>
+                        <button class="rating-btn" data-f="luminosidade" data-v="2">2</button>
+                        <button class="rating-btn" data-f="luminosidade" data-v="3">3</button>
+                        <button class="rating-btn" data-f="luminosidade" data-v="4">4</button>
+                        <button class="rating-btn" data-f="luminosidade" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📐</span> Layout <span class="weight">37%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Funcionalidade da planta</span><span class="rating-value" id="v_layout">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="layout" data-v="1">1</button>
+                        <button class="rating-btn" data-f="layout" data-v="2">2</button>
+                        <button class="rating-btn" data-f="layout" data-v="3">3</button>
+                        <button class="rating-btn" data-f="layout" data-v="4">4</button>
+                        <button class="rating-btn" data-f="layout" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label">Tipo de cozinha</label>
+                    <select class="select" id="tipoCozinha"><option value="">Selecione...</option><option value="integrada">Integrada</option><option value="semi">Semi-integrada</option><option value="fechada">Fechada</option></select>
+                </div>
+                <div class="form-group">
+                    <label class="label">Lavanderia</label>
+                    <select class="select" id="lavanderia"><option value="">Selecione...</option><option value="area">Área separada</option><option value="integrada">Integrada</option><option value="armario">Em armário</option><option value="inexistente">Inexistente</option></select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🔇</span> Acústica <span class="weight">8%</span></div>
+                <div class="measure-row">
+                    <input type="number" class="input" id="db" placeholder="0">
+                    <span class="measure-unit">dB</span>
+                </div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Conforto acústico</span><span class="rating-value" id="v_acustica">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="acustica" data-v="1">1</button>
+                        <button class="rating-btn" data-f="acustica" data-v="2">2</button>
+                        <button class="rating-btn" data-f="acustica" data-v="3">3</button>
+                        <button class="rating-btn" data-f="acustica" data-v="4">4</button>
+                        <button class="rating-btn" data-f="acustica" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="ruidoTransito"><div class="check-box">✓</div><span class="check-text">Ruído de trânsito</span></div>
+                    <div class="check-item" data-c="ruidoVizinhos"><div class="check-box">✓</div><span class="check-text">Ruído de vizinhos</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🔌</span> Infraestrutura <span class="weight">7%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Elétrica e hidráulica</span><span class="rating-value" id="v_infra">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="infra" data-v="1">1</button>
+                        <button class="rating-btn" data-f="infra" data-v="2">2</button>
+                        <button class="rating-btn" data-f="infra" data-v="3">3</button>
+                        <button class="rating-btn" data-f="infra" data-v="4">4</button>
+                        <button class="rating-btn" data-f="infra" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="disjuntores"><div class="check-box">✓</div><span class="check-text">Disjuntores modernos</span></div>
+                    <div class="check-item" data-c="pontosAr"><div class="check-box">✓</div><span class="check-text">Preparado p/ ar</span></div>
+                </div>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label class="label">Aquecimento</label>
+                    <select class="select" id="aquecimento"><option value="">Selecione...</option><option value="gas">Gás</option><option value="eletrico">Elétrico</option><option value="solar">Solar</option><option value="central">Central</option><option value="nenhum">Nenhum</option></select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🌡️</span> Térmico <span class="weight">5%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Conforto térmico</span><span class="rating-value" id="v_termico">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="termico" data-v="1">1</button>
+                        <button class="rating-btn" data-f="termico" data-v="2">2</button>
+                        <button class="rating-btn" data-f="termico" data-v="3">3</button>
+                        <button class="rating-btn" data-f="termico" data-v="4">4</button>
+                        <button class="rating-btn" data-f="termico" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="ventCruzada"><div class="check-box">✓</div><span class="check-text">Ventilação cruzada</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📶</span> Conectividade <span class="weight">5%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Sinal e internet</span><span class="rating-value" id="v_conectividade">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="conectividade" data-v="1">1</button>
+                        <button class="rating-btn" data-f="conectividade" data-v="2">2</button>
+                        <button class="rating-btn" data-f="conectividade" data-v="3">3</button>
+                        <button class="rating-btn" data-f="conectividade" data-v="4">4</button>
+                        <button class="rating-btn" data-f="conectividade" data-v="5">5</button>
+                    </div>
+                </div>
+                <div class="checklist">
+                    <div class="check-item" data-c="fibra"><div class="check-box">✓</div><span class="check-text">Fibra óptica</span></div>
+                    <div class="check-item" data-c="bomSinal"><div class="check-box">✓</div><span class="check-text">Bom sinal celular</span></div>
+                </div>
+            </div>
+
+            <!-- ORIENTAÇÃO SOLAR -->
+            <div class="card">
+                <div class="card-title"><span class="emoji">🌅</span> Orientação Solar</div>
+                <p style="font-size: 0.8125rem; color: var(--text-light); margin-bottom: 14px;">Selecione a face de cada cômodo</p>
+                <div class="solar-grid">
+                    <div class="solar-room">
+                        <span class="solar-room-name">Sala</span>
+                        <div class="solar-options" data-room="sala">
+                            <span class="solar-opt" data-dir="N">N</span><span class="solar-opt" data-dir="NE">NE</span><span class="solar-opt" data-dir="L">L</span><span class="solar-opt" data-dir="SE">SE</span><span class="solar-opt" data-dir="S">S</span><span class="solar-opt" data-dir="SO">SO</span><span class="solar-opt" data-dir="O">O</span><span class="solar-opt" data-dir="NO">NO</span>
+                        </div>
+                    </div>
+                    <div class="solar-room">
+                        <span class="solar-room-name">Cozinha</span>
+                        <div class="solar-options" data-room="cozinha">
+                            <span class="solar-opt" data-dir="N">N</span><span class="solar-opt" data-dir="NE">NE</span><span class="solar-opt" data-dir="L">L</span><span class="solar-opt" data-dir="SE">SE</span><span class="solar-opt" data-dir="S">S</span><span class="solar-opt" data-dir="SO">SO</span><span class="solar-opt" data-dir="O">O</span><span class="solar-opt" data-dir="NO">NO</span>
+                        </div>
+                    </div>
+                    <div class="solar-room">
+                        <span class="solar-room-name">Quarto 1</span>
+                        <div class="solar-options" data-room="quarto1">
+                            <span class="solar-opt" data-dir="N">N</span><span class="solar-opt" data-dir="NE">NE</span><span class="solar-opt" data-dir="L">L</span><span class="solar-opt" data-dir="SE">SE</span><span class="solar-opt" data-dir="S">S</span><span class="solar-opt" data-dir="SO">SO</span><span class="solar-opt" data-dir="O">O</span><span class="solar-opt" data-dir="NO">NO</span>
+                        </div>
+                    </div>
+                    <div class="solar-room">
+                        <span class="solar-room-name">Quarto 2</span>
+                        <div class="solar-options" data-room="quarto2">
+                            <span class="solar-opt" data-dir="N">N</span><span class="solar-opt" data-dir="NE">NE</span><span class="solar-opt" data-dir="L">L</span><span class="solar-opt" data-dir="SE">SE</span><span class="solar-opt" data-dir="S">S</span><span class="solar-opt" data-dir="SO">SO</span><span class="solar-opt" data-dir="O">O</span><span class="solar-opt" data-dir="NO">NO</span>
+                        </div>
+                    </div>
+                    <div class="solar-room">
+                        <span class="solar-room-name">Quarto 3</span>
+                        <div class="solar-options" data-room="quarto3">
+                            <span class="solar-opt" data-dir="N">N</span><span class="solar-opt" data-dir="NE">NE</span><span class="solar-opt" data-dir="L">L</span><span class="solar-opt" data-dir="SE">SE</span><span class="solar-opt" data-dir="S">S</span><span class="solar-opt" data-dir="SO">SO</span><span class="solar-opt" data-dir="O">O</span><span class="solar-opt" data-dir="NO">NO</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="checklist" style="margin-top: 14px;">
+                    <div class="check-item" data-c="temVaranda"><div class="check-box">✓</div><span class="check-text">Imóvel tem varanda</span></div>
+                </div>
+                <div id="varandaSolarRow" class="solar-room" style="display: none; margin-top: 10px; background: var(--bg); padding: 12px; border-radius: 10px;">
+                    <span class="solar-room-name">Varanda</span>
+                    <div class="solar-options" data-room="varanda">
+                        <span class="solar-opt" data-dir="N">N</span><span class="solar-opt" data-dir="NE">NE</span><span class="solar-opt" data-dir="L">L</span><span class="solar-opt" data-dir="SE">SE</span><span class="solar-opt" data-dir="S">S</span><span class="solar-opt" data-dir="SO">SO</span><span class="solar-opt" data-dir="O">O</span><span class="solar-opt" data-dir="NO">NO</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 5: ACABAMENTOS -->
+        <section class="section" data-s="4">
+            <div class="sec-header">
+                <h1 class="sec-title">Acabamentos</h1>
+                <p class="sec-subtitle">Estado atual dos revestimentos</p>
+                <span class="sec-weight">Peso: 15%</span>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🪵</span> Pisos <span class="weight">20%</span></div>
+                <p class="divider">Sala / Estar (40%)</p>
+                <div class="input-row" style="margin-bottom: 12px;">
+                    <div class="form-group">
+                        <label class="label">Tipo</label>
+                        <select class="select" id="tipoPisoSala"><option value="">Selecione...</option><option value="porcelanato">Porcelanato</option><option value="ceramica">Cerâmica</option><option value="madeira">Madeira/Taco</option><option value="laminado">Laminado</option><option value="vinilico">Vinílico</option><option value="carpete">Carpete</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Estado</label>
+                        <div class="rating-btns">
+                            <button class="rating-btn" data-f="pisoSala" data-v="1">1</button>
+                            <button class="rating-btn" data-f="pisoSala" data-v="2">2</button>
+                            <button class="rating-btn" data-f="pisoSala" data-v="3">3</button>
+                            <button class="rating-btn" data-f="pisoSala" data-v="4">4</button>
+                            <button class="rating-btn" data-f="pisoSala" data-v="5">5</button>
+                        </div>
+                    </div>
+                </div>
+                <p class="divider">Área Íntima (35%)</p>
+                <div class="input-row" style="margin-bottom: 12px;">
+                    <div class="form-group">
+                        <label class="label">Tipo</label>
+                        <select class="select" id="tipoPisoIntima"><option value="">Selecione...</option><option value="porcelanato">Porcelanato</option><option value="ceramica">Cerâmica</option><option value="madeira">Madeira/Taco</option><option value="laminado">Laminado</option><option value="vinilico">Vinílico</option><option value="carpete">Carpete</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Estado</label>
+                        <div class="rating-btns">
+                            <button class="rating-btn" data-f="pisoIntima" data-v="1">1</button>
+                            <button class="rating-btn" data-f="pisoIntima" data-v="2">2</button>
+                            <button class="rating-btn" data-f="pisoIntima" data-v="3">3</button>
+                            <button class="rating-btn" data-f="pisoIntima" data-v="4">4</button>
+                            <button class="rating-btn" data-f="pisoIntima" data-v="5">5</button>
+                        </div>
+                    </div>
+                </div>
+                <p class="divider">Banheiros (25%)</p>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="label">Tipo</label>
+                        <select class="select" id="tipoPisoBanheiro"><option value="">Selecione...</option><option value="porcelanato">Porcelanato</option><option value="ceramica">Cerâmica</option><option value="pastilha">Pastilha</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Estado</label>
+                        <div class="rating-btns">
+                            <button class="rating-btn" data-f="pisoBanheiro" data-v="1">1</button>
+                            <button class="rating-btn" data-f="pisoBanheiro" data-v="2">2</button>
+                            <button class="rating-btn" data-f="pisoBanheiro" data-v="3">3</button>
+                            <button class="rating-btn" data-f="pisoBanheiro" data-v="4">4</button>
+                            <button class="rating-btn" data-f="pisoBanheiro" data-v="5">5</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🪟</span> Esquadrias <span class="weight">10%</span></div>
+                <div class="form-group">
+                    <label class="label">Tipo e estado das esquadrias</label>
+                    <select class="select" id="tipoEsquadrias">
+                        <option value="">Selecione...</option>
+                        <option value="pvc_alto">PVC - Alto padrão</option>
+                        <option value="aluminio_alto">Alumínio - Alto padrão</option>
+                        <option value="madeira_bom">Madeira - Bom estado</option>
+                        <option value="madeira_revit">Madeira - Precisa revitalização</option>
+                        <option value="pvc_antigo">PVC - Antigo, precisa manutenção</option>
+                        <option value="aluminio_medio">Alumínio - Médio padrão</option>
+                        <option value="madeira_trocar">Madeira - Precisa troca integral</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🍳</span> Cozinha <span class="weight">25%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Revestimentos e bancadas</span><span class="rating-value" id="v_acabCozinha">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="acabCozinha" data-v="1">1</button>
+                        <button class="rating-btn" data-f="acabCozinha" data-v="2">2</button>
+                        <button class="rating-btn" data-f="acabCozinha" data-v="3">3</button>
+                        <button class="rating-btn" data-f="acabCozinha" data-v="4">4</button>
+                        <button class="rating-btn" data-f="acabCozinha" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🚿</span> Banheiros <span class="weight">25%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Revestimentos e louças</span><span class="rating-value" id="v_acabBanheiros">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="acabBanheiros" data-v="1">1</button>
+                        <button class="rating-btn" data-f="acabBanheiros" data-v="2">2</button>
+                        <button class="rating-btn" data-f="acabBanheiros" data-v="3">3</button>
+                        <button class="rating-btn" data-f="acabBanheiros" data-v="4">4</button>
+                        <button class="rating-btn" data-f="acabBanheiros" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🚪</span> Portas e Janelas <span class="weight">15%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Estado e funcionamento</span><span class="rating-value" id="v_portasJanelas">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="portasJanelas" data-v="1">1</button>
+                        <button class="rating-btn" data-f="portasJanelas" data-v="2">2</button>
+                        <button class="rating-btn" data-f="portasJanelas" data-v="3">3</button>
+                        <button class="rating-btn" data-f="portasJanelas" data-v="4">4</button>
+                        <button class="rating-btn" data-f="portasJanelas" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🎨</span> Pintura <span class="weight">15%</span></div>
+                <div class="rating-group">
+                    <div class="rating-label"><span class="rating-name">Estado das paredes</span><span class="rating-value" id="v_pintura">--</span></div>
+                    <div class="rating-btns">
+                        <button class="rating-btn" data-f="pintura" data-v="1">1</button>
+                        <button class="rating-btn" data-f="pintura" data-v="2">2</button>
+                        <button class="rating-btn" data-f="pintura" data-v="3">3</button>
+                        <button class="rating-btn" data-f="pintura" data-v="4">4</button>
+                        <button class="rating-btn" data-f="pintura" data-v="5">5</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🔨</span> Potencial de Transformação</div>
+                <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 14px;">Viabilidade: Fácil (F) | Médio (M) | Difícil (D) | Inviável (X)</p>
+                
+                <div class="reform-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                    <span style="flex: 1; font-size: 0.8125rem;">Integrar cozinha</span>
+                    <select class="select" id="reformaIntegrar" style="width: 90px; padding: 8px;">
+                        <option value="">--</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="inviavel">Inviável</option>
+                    </select>
+                </div>
+                <div class="reform-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                    <span style="flex: 1; font-size: 0.8125rem;">Criar lavabo</span>
+                    <select class="select" id="reformaLavabo" style="width: 90px; padding: 8px;">
+                        <option value="">--</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="inviavel">Inviável</option>
+                    </select>
+                </div>
+                <div class="reform-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                    <span style="flex: 1; font-size: 0.8125rem;">Criar suíte</span>
+                    <select class="select" id="reformaSuite" style="width: 90px; padding: 8px;">
+                        <option value="">--</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="inviavel">Inviável</option>
+                    </select>
+                </div>
+                <div class="reform-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                    <span style="flex: 1; font-size: 0.8125rem;">Envidraçar varanda</span>
+                    <select class="select" id="reformaEnvidracar" style="width: 90px; padding: 8px;">
+                        <option value="">--</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="inviavel">Inviável</option>
+                    </select>
+                </div>
+                <div class="reform-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                    <span style="flex: 1; font-size: 0.8125rem;">Instalar churrasqueira</span>
+                    <select class="select" id="reformaChurrasqueira" style="width: 90px; padding: 8px;">
+                        <option value="">--</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="inviavel">Inviável</option>
+                    </select>
+                </div>
+                <div class="reform-item" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px;">
+                    <span style="flex: 1; font-size: 0.8125rem;">Instalar lareira</span>
+                    <select class="select" id="reformaLareira" style="width: 90px; padding: 8px;">
+                        <option value="">--</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="inviavel">Inviável</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label class="label">Outras possibilidades</label>
+                    <textarea class="textarea" id="reformaOutras" placeholder="Home office, closet, banheira..."></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">💰</span> Estimativa de Investimento</div>
+                <div class="form-group"><label class="label">Básico (pintura + reparos)</label><input type="text" class="input" id="capexBasico" placeholder="R$ 0"></div>
+                <div class="form-group"><label class="label">Médio (+ cozinha e banheiros)</label><input type="text" class="input" id="capexMedio" placeholder="R$ 0"></div>
+                <div class="form-group"><label class="label">Completo (reforma total)</label><input type="text" class="input" id="capexCompleto" placeholder="R$ 0"></div>
+            </div>
+        </section>
+        <!-- SEÇÃO 6: POSICIONAMENTO -->
+        <section class="section" data-s="5">
+            <div class="sec-header">
+                <h1 class="sec-title">Posicionamento</h1>
+                <p class="sec-subtitle">Análise estratégica (não entra no score)</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🎯</span> Perfil do Produto</div>
+                <div class="radio-group" id="perfilProduto">
+                    <div class="radio-item" data-v="pronto"><div class="radio-circle"></div><span class="radio-text">Pronto para morar</span></div>
+                    <div class="radio-item" data-v="atualizacao"><div class="radio-circle"></div><span class="radio-text">Precisa de atualização leve</span></div>
+                    <div class="radio-item" data-v="reforma"><div class="radio-circle"></div><span class="radio-text">Oportunidade de reforma (investidor)</span></div>
+                    <div class="radio-item" data-v="renovacao"><div class="radio-circle"></div><span class="radio-text">Projeto de renovação completa</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📍</span> Market Fit</div>
+                <div class="radio-group" id="marketFit">
+                    <div class="radio-item" data-v="perfeito"><div class="radio-circle"></div><span class="radio-text">Perfeito (ideal para a região)</span></div>
+                    <div class="radio-item" data-v="bom"><div class="radio-circle"></div><span class="radio-text">Bom (alinhado com a maioria)</span></div>
+                    <div class="radio-item" data-v="parcial"><div class="radio-circle"></div><span class="radio-text">Parcial (atende um nicho)</span></div>
+                    <div class="radio-item" data-v="desalinhado"><div class="radio-circle"></div><span class="radio-text">Desalinhado (fora do perfil)</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">💵</span> Preço Adequado Para</div>
+                <div class="radio-group" id="precoAdequado">
+                    <div class="radio-item" data-v="compradorFinal"><div class="radio-circle"></div><span class="radio-text">Comprador final</span></div>
+                    <div class="radio-item" data-v="investidor"><div class="radio-circle"></div><span class="radio-text">Investidor</span></div>
+                    <div class="radio-item" data-v="nenhum"><div class="radio-circle"></div><span class="radio-text">Nenhum (precisa ajuste)</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📝</span> Observações</div>
+                <div class="form-group"><label class="label">Pontos fortes</label><textarea class="textarea" id="pontosFortes" placeholder="Destaques positivos..."></textarea></div>
+                <div class="form-group"><label class="label">Pontos de atenção</label><textarea class="textarea" id="pontosAtencao" placeholder="Alertas, problemas..."></textarea></div>
+                <div class="form-group"><label class="label">Perfil do comprador ideal</label><textarea class="textarea" id="perfilComprador" placeholder="Família, jovem casal, investidor..."></textarea></div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 7: FOTOS -->
+        <section class="section" data-s="6">
+            <div class="sec-header">
+                <h1 class="sec-title">Fotos</h1>
+                <p class="sec-subtitle">Toque para capturar</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📷</span> Documentação</div>
+                <div class="photo-grid">
+                    <div class="photo-slot" data-p="fachada"><span class="icon">🏢</span><span class="text">Fachada</span></div>
+                    <div class="photo-slot" data-p="hall"><span class="icon">🚪</span><span class="text">Hall</span></div>
+                    <div class="photo-slot" data-p="elevador"><span class="icon">🛗</span><span class="text">Elevador</span></div>
+                    <div class="photo-slot" data-p="sala"><span class="icon">🛋️</span><span class="text">Sala</span></div>
+                    <div class="photo-slot" data-p="cozinha"><span class="icon">🍳</span><span class="text">Cozinha</span></div>
+                    <div class="photo-slot" data-p="quarto"><span class="icon">🛏️</span><span class="text">Quarto</span></div>
+                    <div class="photo-slot" data-p="banheiro"><span class="icon">🚿</span><span class="text">Banheiro</span></div>
+                    <div class="photo-slot" data-p="vista"><span class="icon">🌆</span><span class="text">Vista</span></div>
+                    <div class="photo-slot" data-p="garagem"><span class="icon">🚗</span><span class="text">Garagem</span></div>
+                    <div class="photo-slot" data-p="quadro"><span class="icon">⚡</span><span class="text">Quadro</span></div>
+                    <div class="photo-slot" data-p="extra1"><span class="icon">➕</span><span class="text">Extra</span></div>
+                    <div class="photo-slot" data-p="extra2"><span class="icon">➕</span><span class="text">Extra</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 8: RESUMO -->
+        <section class="section" data-s="7">
+            <div class="sec-header">
+                <h1 class="sec-title">Resumo</h1>
+                <p class="sec-subtitle">Revise antes de finalizar</p>
+            </div>
+
+            <div class="score-card">
+                <div class="score-number" id="scoreTotal">--</div>
+                <div class="score-label">Score Qmob</div>
+                <div class="score-badge" id="scoreBadge">Calculando...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📊</span> Scores por Dimensão</div>
+                <div class="dim-item">
+                    <div class="dim-header"><span class="dim-name">🗺️ Entorno (30%)</span><span class="dim-value" id="dimEntorno">--</span></div>
+                    <div class="dim-bar"><div class="dim-fill" id="barEntorno" style="background: #f59e0b; width: 0%;"></div></div>
+                </div>
+                <div class="dim-item">
+                    <div class="dim-header"><span class="dim-name">🏢 Edifício (25%)</span><span class="dim-value" id="dimEdificio">--</span></div>
+                    <div class="dim-bar"><div class="dim-fill" id="barEdificio" style="background: #22c55e; width: 0%;"></div></div>
+                </div>
+                <div class="dim-item">
+                    <div class="dim-header"><span class="dim-name">🏠 Imóvel (30%)</span><span class="dim-value" id="dimImovel">--</span></div>
+                    <div class="dim-bar"><div class="dim-fill" id="barImovel" style="background: #3b82f6; width: 0%;"></div></div>
+                </div>
+                <div class="dim-item">
+                    <div class="dim-header"><span class="dim-name">🎨 Acabamentos (15%)</span><span class="dim-value" id="dimAcabamentos">--</span></div>
+                    <div class="dim-bar"><div class="dim-fill" id="barAcabamentos" style="background: #ec4899; width: 0%;"></div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📋</span> Dados Coletados</div>
+                <div id="resumoDados" style="font-size: 0.875rem; color: var(--text-light);">Carregando...</div>
+            </div>
+
+            <button class="btn btn-success" id="btnFinalizar" style="width: 100%; margin-top: 12px;">✅ Finalizar Auditoria</button>
+            
+            <div id="opcoesFinais" style="display: none; margin-top: 16px;">
+                <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                    <div class="card-title" style="color: #166534;"><span class="emoji">🎉</span> Auditoria Finalizada!</div>
+                    <p style="font-size: 0.875rem; color: #166534; margin-bottom: 16px;">Score: <strong id="scoreFinalizado">--</strong>/100</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-primary" id="btnGerarPDF" style="background: #3b82f6;">📄 Gerar PDF do Laudo</button>
+                        <button class="btn" id="btnWhatsApp" style="background: #25D366; color: white;">📱 Compartilhar via WhatsApp</button>
+                        <button class="btn btn-outline" id="btnVerLaudo">👁️ Ver Laudo Completo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="btn btn-outline" id="btnPrev">← Anterior</button>
+        <button class="btn btn-primary" id="btnNext">Próximo →</button>
+    </nav>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=SUA_API_KEY_AQUI&libraries=places"></script>
+    <script>
+        // ========== CONFIGURAÇÃO DE PESOS ==========
+        const PESOS = {
+            global: { entorno: 0.30, edificio: 0.25, imovel: 0.30, acabamentos: 0.15 },
+            entorno: { pavimento: 0.04, segNoturna: 0.23, mobilidade: 0.18, super: 0.18, restaurantes: 0.18, academias: 0.19 },
+            edificio: { elevador: 0.15, segPredio: 0.20, fachada: 0.225, areasComuns: 0.225, garagem: 0.15, saudeCond: 0.05 },
+            imovel: { luminosidade: 0.38, layout: 0.37, acustica: 0.08, infra: 0.07, termico: 0.05, conectividade: 0.05 },
+            acabamentos: { pisos: 0.20, acabCozinha: 0.25, acabBanheiros: 0.15, esquadrias: 0.10, pintura: 0.15, portasJanelas: 0.15 },
+            pisos: { sala: 0.40, intima: 0.35, banheiro: 0.25 }
+        };
+
+        // Scores das esquadrias (baseado no tipo selecionado)
+        const ESQUADRIAS_SCORE = {
+            'pvc_alto': 5, 'aluminio_alto': 5, 'madeira_bom': 4, 'madeira_revit': 4,
+            'pvc_antigo': 3, 'aluminio_medio': 2, 'madeira_trocar': 1
+        };
+
+        // ========== POLÍGONOS DOS QUADRANTES ==========
+        const QUADRANTES = {
+            "Q1": [[-30.0220163,-51.2087232],[-30.0279143,-51.2060875],[-30.0274783,-51.2045604],[-30.0243943,-51.2009555],[-30.0234654,-51.2019425],[-30.0213846,-51.2022429],[-30.0181146,-51.2023717],[-30.0183846,-51.2054952],[-30.0220163,-51.2087232]],
+            "Q2": [[-30.0181681,-51.2022215],[-30.0214381,-51.2020927],[-30.0235189,-51.2018351],[-30.0245923,-51.2007406],[-30.0279143,-51.2060875],[-30.0269766,-51.207201],[-30.0264457,-51.2066597],[-30.0236007,-51.20821],[-30.0216651,-51.2066811],[-30.0214617,-51.2053841],[-30.0187689,-51.2052981],[-30.0181681,-51.2022215]],
+            "Q3": [[-30.0288287,-51.1971229],[-30.0287469,-51.1944228],[-30.0235462,-51.1948451],[-30.0231924,-51.1969691],[-30.0203858,-51.1972697],[-30.0176919,-51.1970978],[-30.0164062,-51.1971022],[-30.0162063,-51.1956551],[-30.014889,-51.1948821],[-30.0181413,-51.2020454],[-30.024642,-51.2008477],[-30.0288287,-51.1971229]],
+            "Q4": [[-30.0144071,-51.1977145],[-30.0161981,-51.1970549],[-30.0161572,-51.1956637],[-30.0148517,-51.194889],[-30.0129983,-51.1972881],[-30.0108742,-51.1990453],[-30.0123759,-51.2026073],[-30.0144071,-51.1977145]],
+            "Q5": [[-30.0207936,-51.1909966],[-30.0252044,-51.1911256],[-30.0250045,-51.1944042],[-30.0231797,-51.1948266],[-30.0242008,-51.1970464],[-30.0275501,-51.1966026],[-30.0287469,-51.1944228],[-30.0288287,-51.1971229],[-30.0324081,-51.1932251],[-30.0320133,-51.1915779],[-30.0308548,-51.189312],[-30.0283608,-51.1872095],[-30.0257258,-51.1850853],[-30.0239691,-51.185599],[-30.0207936,-51.1909966]],
+            "Q6": [[-30.0242008,-51.1970464],[-30.0230606,-51.1948737],[-30.0252044,-51.1911256],[-30.0207936,-51.1909966],[-30.0177327,-51.1920415],[-30.0162336,-51.1910181],[-30.0162063,-51.1956551],[-30.0175874,-51.1969419],[-30.0203585,-51.1973939],[-30.0242008,-51.1970464]],
+            "Q7": [[-30.0104793,-51.199089],[-30.0084208,-51.1909322],[-30.0107753,-51.1906316],[-30.0130392,-51.1890273],[-30.0152892,-51.1910923],[-30.0162063,-51.1909419],[-30.0174374,-51.1920094],[-30.0207936,-51.1909966],[-30.0104793,-51.199089]],
+            "Q8": [[-30.0287469,-51.1944228],[-30.0275501,-51.1966026],[-30.0304111,-51.1972266],[-30.0325071,-51.1967398],[-30.032017,-51.1917208],[-30.0287469,-51.1944228]],
+            "Q9": [[-30.0421555,-51.2127824],[-30.0443145,-51.2109823],[-30.0398353,-51.2083251],[-30.0397809,-51.2033564],[-30.0358794,-51.2020916],[-30.0336017,-51.2030935],[-30.0323527,-51.2064338],[-30.0308685,-51.2073946],[-30.0293434,-51.2078601],[-30.0283608,-51.1873383],[-30.0258348,-51.1849994],[-30.0238919,-51.185599],[-30.0187598,-51.1906745],[-30.0176783,-51.1920523],[-30.0162063,-51.1911039],[-30.0152755,-51.1911469],[-30.0129983,-51.1890058],[-30.0084208,-51.1909322],[-30.0102746,-51.1991837],[-30.0110292,-51.2005973],[-30.0113231,-51.202392],[-30.0120232,-51.2028789],[-30.012868,-51.204154],[-30.0143343,-51.2062135],[-30.0159013,-51.2083685],[-30.0188824,-51.2085511],[-30.0235462,-51.2084435],[-30.0421555,-51.2127824]]
+        };
+
+        // Função para verificar se ponto está dentro do polígono (Ray Casting)
+        function pontoEmPoligono(lat, lng, poligono) {
+            let dentro = false;
+            for (let i = 0, j = poligono.length - 1; i < poligono.length; j = i++) {
+                const xi = poligono[i][1], yi = poligono[i][0];
+                const xj = poligono[j][1], yj = poligono[j][0];
+                const intersect = ((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+                if (intersect) dentro = !dentro;
+            }
+            return dentro;
+        }
+
+        // Função para detectar quadrante
+        function detectarQuadrante(lat, lng) {
+            for (const [quadrante, poligono] of Object.entries(QUADRANTES)) {
+                if (pontoEmPoligono(lat, lng, poligono)) return quadrante;
+            }
+            return null;
+        }
+
+        // ========== STATE ==========
+        const state = { section: 0, total: 8, ratings: {}, checks: {}, photos: {}, solar: {}, radios: {} };
+
+        // ========== DOM ==========
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.section');
+        const progress = document.getElementById('progress');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+
+        // ========== NAVIGATION ==========
+        function goTo(i) {
+            state.section = Math.max(0, Math.min(i, state.total - 1));
+            updateUI();
+        }
+
+        function updateUI() {
+            tabs.forEach((t, i) => t.classList.toggle('active', i === state.section));
+            sections.forEach((s, i) => s.classList.toggle('active', i === state.section));
+            progress.style.width = ((state.section + 1) / state.total * 100) + '%';
+            btnPrev.style.visibility = state.section === 0 ? 'hidden' : 'visible';
+            btnNext.style.display = state.section === state.total - 1 ? 'none' : 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (state.section === state.total - 1) { calculateScores(); updateResumo(); }
+            updateIndicators();
+            save();
+        }
+
+        tabs.forEach((t, i) => t.addEventListener('click', () => goTo(i)));
+        btnPrev.addEventListener('click', () => goTo(state.section - 1));
+        btnNext.addEventListener('click', () => goTo(state.section + 1));
+
+        // ========== RATINGS ==========
+        document.querySelectorAll('.rating-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const f = btn.dataset.f, v = parseInt(btn.dataset.v);
+                state.ratings[f] = v;
+                btn.parentElement.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                const d = document.getElementById('v_' + f);
+                if (d) d.textContent = v + '/5';
+                save();
+            });
+        });
+
+        // ========== CHECKLISTS ==========
+        document.querySelectorAll('.check-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const k = item.dataset.c;
+                item.classList.toggle('checked');
+                state.checks[k] = item.classList.contains('checked');
+                save();
+            });
+        });
+
+        // ========== RADIO GROUPS ==========
+        document.querySelectorAll('.radio-group').forEach(group => {
+            group.querySelectorAll('.radio-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    group.querySelectorAll('.radio-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    state.radios[group.id] = item.dataset.v;
+                    save();
+                });
+            });
+        });
+
+        // ========== SOLAR ==========
+        document.querySelectorAll('.solar-opt').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const room = opt.parentElement.dataset.room;
+                opt.parentElement.querySelectorAll('.solar-opt').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                state.solar[room] = opt.dataset.dir;
+                save();
+            });
+        });
+
+        // ========== PHOTOS ==========
+        document.querySelectorAll('.photo-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            slot.style.backgroundImage = `url(${ev.target.result})`;
+                            slot.classList.add('has-photo');
+                            state.photos[slot.dataset.p] = ev.target.result;
+                            save();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            });
+        });
+
+        // ========== INDICATORS ==========
+        function updateIndicators() {
+            const area = parseFloat(document.getElementById('area').value) || 0;
+            const valor = parseFloat((document.getElementById('valorPedido').value || '0').replace(/\./g, '').replace(',', '.')) || 0;
+            const cond = parseFloat((document.getElementById('valorCondominio').value || '0').replace(/\./g, '').replace(',', '.')) || 0;
+            const anoConstrucao = parseInt(document.getElementById('anoConstrucao').value) || 0;
+            const anoMod = parseInt(document.getElementById('anoModernizacao').value) || 0;
+            const anoAtual = new Date().getFullYear();
+
+            const precoM2El = document.getElementById('indPrecoM2');
+            if (area > 0 && valor > 0) {
+                precoM2El.textContent = 'R$ ' + Math.round(valor / area).toLocaleString('pt-BR');
+                precoM2El.className = 'indicator-value neutral';
+            } else { precoM2El.textContent = '--'; precoM2El.className = 'indicator-value neutral'; }
+
+            const condM2El = document.getElementById('indCondM2');
+            if (area > 0 && cond > 0) {
+                const cm2 = (cond / area).toFixed(2);
+                condM2El.textContent = 'R$ ' + cm2;
+                condM2El.className = cm2 < 10 ? 'indicator-value green' : cm2 <= 13 ? 'indicator-value yellow' : 'indicator-value red';
+            } else { condM2El.textContent = '--'; condM2El.className = 'indicator-value neutral'; }
+
+            const idadeEl = document.getElementById('indIdade');
+            if (anoConstrucao > 0) {
+                const idade = anoAtual - anoConstrucao;
+                idadeEl.textContent = idade + ' anos';
+                idadeEl.className = idade < 15 ? 'indicator-value green' : idade <= 30 ? 'indicator-value yellow' : 'indicator-value red';
+            } else { idadeEl.textContent = '--'; idadeEl.className = 'indicator-value neutral'; }
+
+            const elevEl = document.getElementById('indElevador');
+            if (anoMod > 0) {
+                const t = anoAtual - anoMod;
+                elevEl.textContent = t + ' anos';
+                elevEl.className = t < 5 ? 'indicator-value green' : t <= 10 ? 'indicator-value yellow' : 'indicator-value red';
+            } else { elevEl.textContent = '--'; elevEl.className = 'indicator-value neutral'; }
+        }
+
+        // ========== CALCULATE SCORES ==========
+        function calculateScores() {
+            const results = {};
+            
+            // Função auxiliar para calcular dimensão
+            function calcDim(pesosCriterios, customRatings = null) {
+                let score = 0;
+                const ratings = customRatings || state.ratings;
+                for (const [field, weight] of Object.entries(pesosCriterios)) {
+                    if (ratings[field]) score += (ratings[field] / 5) * weight * 100;
+                }
+                return Math.round(score);
+            }
+
+            // Calcular score de pisos (média ponderada das 3 áreas)
+            const pisoSala = state.ratings['pisoSala'] || 0;
+            const pisoIntima = state.ratings['pisoIntima'] || 0;
+            const pisoBanheiro = state.ratings['pisoBanheiro'] || 0;
+            let pisosScore = 0;
+            if (pisoSala || pisoIntima || pisoBanheiro) {
+                pisosScore = (pisoSala * PESOS.pisos.sala + pisoIntima * PESOS.pisos.intima + pisoBanheiro * PESOS.pisos.banheiro);
+            }
+            
+            // Score das esquadrias
+            const tipoEsquadrias = document.getElementById('tipoEsquadrias')?.value || '';
+            const esquadriasScore = ESQUADRIAS_SCORE[tipoEsquadrias] || 0;
+
+            // Criar ratings customizados para acabamentos
+            const acabamentosRatings = {
+                pisos: pisosScore,
+                acabCozinha: state.ratings['acabCozinha'] || 0,
+                acabBanheiros: state.ratings['acabBanheiros'] || 0,
+                esquadrias: esquadriasScore,
+                pintura: state.ratings['pintura'] || 0,
+                portasJanelas: state.ratings['portasJanelas'] || 0
+            };
+
+            results.entorno = calcDim(PESOS.entorno);
+            results.edificio = calcDim(PESOS.edificio);
+            results.imovel = calcDim(PESOS.imovel);
+            results.acabamentos = calcDim(PESOS.acabamentos, acabamentosRatings);
+
+            const total = results.entorno * PESOS.global.entorno + results.edificio * PESOS.global.edificio + results.imovel * PESOS.global.imovel + results.acabamentos * PESOS.global.acabamentos;
+
+            document.getElementById('dimEntorno').textContent = results.entorno;
+            document.getElementById('barEntorno').style.width = results.entorno + '%';
+            document.getElementById('dimEdificio').textContent = results.edificio;
+            document.getElementById('barEdificio').style.width = results.edificio + '%';
+            document.getElementById('dimImovel').textContent = results.imovel;
+            document.getElementById('barImovel').style.width = results.imovel + '%';
+            document.getElementById('dimAcabamentos').textContent = results.acabamentos;
+            document.getElementById('barAcabamentos').style.width = results.acabamentos + '%';
+
+            const score = Math.round(total);
+            const scoreEl = document.getElementById('scoreTotal');
+            const badgeEl = document.getElementById('scoreBadge');
+
+            if (Object.keys(state.ratings).length > 0) {
+                scoreEl.textContent = score;
+                if (score >= 90) { badgeEl.textContent = 'Excepcional'; badgeEl.style.background = '#10b981'; }
+                else if (score >= 80) { badgeEl.textContent = 'Muito Bom'; badgeEl.style.background = '#22c55e'; }
+                else if (score >= 70) { badgeEl.textContent = 'Bom'; badgeEl.style.background = '#eab308'; }
+                else if (score >= 60) { badgeEl.textContent = 'Regular'; badgeEl.style.background = '#f97316'; }
+                else { badgeEl.textContent = 'Atenção'; badgeEl.style.background = '#ef4444'; }
+            }
+            return { ...results, total: score };
+        }
+
+        function updateResumo() {
+            const endereco = document.getElementById('endereco').value || '--';
+            const bairro = document.getElementById('bairro').value || '--';
+            const area = document.getElementById('area').value || '--';
+            const quartos = document.getElementById('quartos').value || '--';
+            const valor = document.getElementById('valorPedido').value || '--';
+            const fotos = Object.keys(state.photos).length;
+            const avaliacoes = Object.keys(state.ratings).length;
+            document.getElementById('resumoDados').innerHTML = `<p><strong>Endereço:</strong> ${endereco}</p><p><strong>Bairro:</strong> ${bairro}</p><p><strong>Área:</strong> ${area} m² | <strong>Quartos:</strong> ${quartos}</p><p><strong>Valor:</strong> R$ ${valor}</p><p style="margin-top: 10px;"><strong>Fotos:</strong> ${fotos}/12 | <strong>Avaliações:</strong> ${avaliacoes} critérios</p>`;
+        }
+
+        // ========== STORAGE ==========
+        function save() {
+            const data = { section: state.section, ratings: state.ratings, checks: state.checks, photos: state.photos, solar: state.solar, radios: state.radios, form: collectForm() };
+            localStorage.setItem('qmob_v4', JSON.stringify(data));
+        }
+
+        function load() {
+            const saved = localStorage.getItem('qmob_v4');
+            if (saved) {
+                const data = JSON.parse(saved);
+                state.section = data.section || 0;
+                state.ratings = data.ratings || {};
+                state.checks = data.checks || {};
+                state.photos = data.photos || {};
+                state.solar = data.solar || {};
+                state.radios = data.radios || {};
+
+                for (const [field, value] of Object.entries(state.ratings)) {
+                    const btn = document.querySelector(`.rating-btn[data-f="${field}"][data-v="${value}"]`);
+                    if (btn) { btn.classList.add('selected'); const d = document.getElementById('v_' + field); if (d) d.textContent = value + '/5'; }
+                }
+                for (const [key, checked] of Object.entries(state.checks)) {
+                    if (checked) { const item = document.querySelector(`.check-item[data-c="${key}"]`); if (item) item.classList.add('checked'); }
+                }
+                for (const [key, src] of Object.entries(state.photos)) {
+                    const slot = document.querySelector(`.photo-slot[data-p="${key}"]`);
+                    if (slot) { slot.style.backgroundImage = `url(${src})`; slot.classList.add('has-photo'); }
+                }
+                for (const [room, dir] of Object.entries(state.solar)) {
+                    const opt = document.querySelector(`.solar-options[data-room="${room}"] .solar-opt[data-dir="${dir}"]`);
+                    if (opt) opt.classList.add('selected');
+                }
+                for (const [group, value] of Object.entries(state.radios)) {
+                    const item = document.querySelector(`#${group} .radio-item[data-v="${value}"]`);
+                    if (item) item.classList.add('selected');
+                }
+                if (data.form) { for (const [id, value] of Object.entries(data.form)) { const el = document.getElementById(id); if (el) el.value = value; } }
+            }
+        }
+
+        function collectForm() {
+            const data = {};
+            document.querySelectorAll('input, select, textarea').forEach(el => { if (el.id) data[el.id] = el.value; });
+            return data;
+        }
+
+        // ========== NOVA AVALIAÇÃO ==========
+        document.getElementById('btnNovaAvaliacao').addEventListener('click', () => {
+            if (confirm('⚠️ Tem certeza que deseja começar uma nova avaliação?\n\nTodos os dados atuais serão perdidos.')) {
+                localStorage.removeItem('qmob_v4');
+                localStorage.removeItem('qmob_laudo');
+                location.reload();
+            }
+        });
+
+        // ========== FINALIZE ==========
+        document.getElementById('btnFinalizar').addEventListener('click', () => {
+            const scores = calculateScores();
+            const data = { form: collectForm(), ratings: state.ratings, checks: state.checks, photos: state.photos, solar: state.solar, radios: state.radios, scores: scores, score: scores.total, pesos: PESOS, timestamp: new Date().toISOString() };
+            localStorage.setItem('qmob_laudo', JSON.stringify(data));
+            
+            // Mostrar opções finais
+            document.getElementById('opcoesFinais').style.display = 'block';
+            document.getElementById('scoreFinalizado').textContent = data.score;
+            document.getElementById('btnFinalizar').style.display = 'none';
+        });
+
+        // ========== GERAR PDF ==========
+        document.getElementById('btnGerarPDF').addEventListener('click', () => {
+            window.open('qmob-gerador-laudo-v2.html', '_blank');
+        });
+
+        // ========== WHATSAPP ==========
+        document.getElementById('btnWhatsApp').addEventListener('click', () => {
+            const data = JSON.parse(localStorage.getItem('qmob_laudo') || '{}');
+            const form = data.form || {};
+            const score = data.score || '--';
+            const scores = data.scores || {};
+            
+            const texto = `🏠 *Auditoria Qmob*\n\n` +
+                `📍 ${form.endereco || 'Endereço não informado'}\n` +
+                `🏘️ ${form.bairro || ''}\n\n` +
+                `📊 *Score: ${score}/100*\n` +
+                `├ Entorno: ${scores.entorno || '--'}\n` +
+                `├ Edifício: ${scores.edificio || '--'}\n` +
+                `├ Imóvel: ${scores.imovel || '--'}\n` +
+                `└ Acabamentos: ${scores.acabamentos || '--'}\n\n` +
+                `📐 ${form.area || '--'}m² | ${form.quartos || '--'}q | ${form.vagas || '--'}v\n` +
+                `💰 R$ ${form.valorPedido || '--'}\n\n` +
+                `_Auditoria realizada com Qmob_`;
+            
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        });
+
+        // ========== VER LAUDO ==========
+        document.getElementById('btnVerLaudo').addEventListener('click', () => {
+            window.open('qmob-gerador-laudo-v2.html', '_blank');
+        });
+
+        // ========== BUSCAR DADOS DO ENDEREÇO ==========
+        document.getElementById('btnBuscarDados').addEventListener('click', async () => {
+            const endereco = document.getElementById('endereco').value.trim();
+            if (!endereco) {
+                alert('⚠️ Digite um endereço primeiro!');
+                return;
+            }
+
+            const btn = document.getElementById('btnBuscarDados');
+            const originalText = btn.textContent;
+            btn.textContent = '🔄 Buscando...';
+            btn.disabled = true;
+
+            try {
+                // Verifica se Google Maps está carregado
+                if (typeof google === 'undefined' || !google.maps) {
+                    alert('⚠️ Google Maps não carregado!\n\n1. Verifique se adicionou sua API Key no código\n2. Substitua "SUA_API_KEY_AQUI" pela sua chave real\n3. Salve e faça upload no GitHub novamente\n\nPor enquanto, selecione o quadrante manualmente.');
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                const enderecoCompleto = endereco + ', Porto Alegre, RS, Brasil';
+                const geocoder = new google.maps.Geocoder();
+
+                geocoder.geocode({ address: enderecoCompleto }, (results, status) => {
+                    if (status === 'OK' && results.length > 0) {
+                        const location = results[0].geometry.location;
+                        const lat = location.lat();
+                        const lng = location.lng();
+
+                        // Detectar quadrante
+                        const quadrante = detectarQuadrante(lat, lng);
+                        
+                        if (quadrante) {
+                            document.getElementById('quadrante').value = quadrante;
+                            alert(`✅ Endereço encontrado!\n\n📍 Quadrante: ${quadrante}\n🗺️ Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+                        } else {
+                            alert('⚠️ Endereço encontrado, mas está FORA dos quadrantes de atuação.\n\nSelecione manualmente se souber qual é o correto.');
+                        }
+
+                        // Extrair bairro automaticamente
+                        const addressComponents = results[0].address_components;
+                        for (const component of addressComponents) {
+                            if (component.types.includes('sublocality') || component.types.includes('neighborhood')) {
+                                document.getElementById('bairro').value = component.long_name;
+                                break;
+                            }
+                        }
+
+                        save();
+                    } else if (status === 'REQUEST_DENIED') {
+                        alert('⚠️ Acesso negado!\n\n1. Verifique se sua API Key está correta\n2. Verifique se ativou a "Maps JavaScript API" no Google Cloud Console\n3. Verifique se configurou as restrições corretamente\n\nPor enquanto, selecione o quadrante manualmente.');
+                    } else {
+                        alert('❌ Endereço não encontrado.\n\nVerifique se digitou corretamente ou selecione o quadrante manualmente.');
+                    }
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                });
+
+            } catch (error) {
+                console.error('Erro ao buscar endereço:', error);
+                alert('❌ Erro ao buscar endereço: ' + error.message);
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // ========== AUTO-SAVE ==========
+        document.querySelectorAll('input, select, textarea').forEach(el => { el.addEventListener('change', () => { save(); updateIndicators(); }); });
+
+        // ========== CAMPOS CONDICIONAIS ==========
+        // Chamada Extra
+        const checkChamadaExtra = document.querySelector('[data-c="temChamadaExtra"]');
+        const chamadaExtraFields = document.getElementById('chamadaExtraFields');
+        if (checkChamadaExtra && chamadaExtraFields) {
+            checkChamadaExtra.addEventListener('click', () => {
+                setTimeout(() => {
+                    chamadaExtraFields.style.display = state.checks['temChamadaExtra'] ? 'block' : 'none';
+                }, 50);
+            });
+        }
+
+        // Varanda
+        const checkVaranda = document.querySelector('[data-c="temVaranda"]');
+        const varandaSolarRow = document.getElementById('varandaSolarRow');
+        if (checkVaranda && varandaSolarRow) {
+            checkVaranda.addEventListener('click', () => {
+                setTimeout(() => {
+                    varandaSolarRow.style.display = state.checks['temVaranda'] ? 'flex' : 'none';
+                }, 50);
+            });
+        }
+
+        // ========== INIT ==========
+        load();
+        updateUI();
+        updateIndicators();
+        
+        // Restaurar estados condicionais
+        if (state.checks['temChamadaExtra'] && chamadaExtraFields) chamadaExtraFields.style.display = 'block';
+        if (state.checks['temVaranda'] && varandaSolarRow) varandaSolarRow.style.display = 'flex';
+    </script>
+</body>
+</html>
