@@ -1370,7 +1370,7 @@
                 // Geocoding via Google Maps API (sem API key - usa serviço público limitado)
                 // Em produção, você deve usar sua API key
                 const enderecoCompleto = endereco + ', Porto Alegre, RS, Brasil';
-                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(enderecoCompleto)}`;
+                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(enderecoCompleto)}&key=AIzaSyDgybRoDXVTG1HeLKgvxe8rpyhVaemweEs`;
                 
                 const response = await fetch(geocodeUrl);
                 const data = await response.json();
