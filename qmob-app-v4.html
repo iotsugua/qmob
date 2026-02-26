@@ -188,6 +188,7 @@
             <button class="tab" data-i="5"><span class="tab-num">6</span>Posição</button>
             <button class="tab" data-i="6"><span class="tab-num">7</span>Fotos</button>
             <button class="tab" data-i="7"><span class="tab-num">8</span>Resumo</button>
+            <button class="tab" data-i="8"><span class="tab-num">9</span>Viab.</button>
         </div>
     </div>
 
@@ -981,6 +982,81 @@
                 </div>
             </div>
         </section>
+
+        <!-- SEÇÃO 9: VIABILIDADE FINANCEIRA -->
+        <section class="section" data-s="8">
+            <div class="sec-header">
+                <h1 class="sec-title">💰 Viabilidade Financeira</h1>
+                <p class="sec-subtitle">Análise de rentabilidade e cenários</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">📋</span> Dados Auto-Preenchidos</div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Valor Compra</label><input type="text" class="input" id="viabValorCompra" readonly style="background: #f0f0f0;"></div>
+                    <div class="form-group"><label class="label">Metragem (m²)</label><input type="number" class="input" id="viabMetragem" readonly style="background: #f0f0f0;"></div>
+                </div>
+                <div class="input-row">
+                    <div class="form-group"><label class="label">Condomínio (R$/mês)</label><input type="text" class="input" id="viabCondominio" readonly style="background: #f0f0f0;"></div>
+                    <div class="form-group"><label class="label">IPTU (R$/mês)</label><input type="text" class="input" id="viabIptu" readonly style="background: #f0f0f0;"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🔨</span> Dados da Reforma</div>
+                <div class="form-group">
+                    <label class="label">Custo reforma por m²</label>
+                    <input type="number" class="input" id="viabCustoReforma" placeholder="Ex: 1800">
+                    <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 4px;">💡 R$ 1.800-2.200: Houseflipping | R$ 2.600-4.000: Morador Final</p>
+                </div>
+                <div class="form-group">
+                    <label class="label">Preço venda por m² (pretendido)</label>
+                    <input type="number" class="input" id="viabPrecoVenda" placeholder="Ex: 10000">
+                    <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 4px;" id="viabSugestaoQuadrante"></p>
+                </div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="label">Meses de obra</label>
+                        <input type="number" class="input" id="viabMesesObra" value="3" placeholder="3">
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Meses de venda</label>
+                        <input type="number" class="input" id="viabMesesVenda" value="3" placeholder="3">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="emoji">🎯</span> Tipo de Operação</div>
+                <div class="radio-group" id="viabTipoOperacao">
+                    <div class="radio-item" data-v="cp_pf"><div class="radio-circle"></div><span class="radio-text">Investidor - Capital Próprio (PF)</span></div>
+                    <div class="radio-item" data-v="cp_pj"><div class="radio-circle"></div><span class="radio-text">Investidor - Capital Próprio (PJ)</span></div>
+                    <div class="radio-item" data-v="fin_pf"><div class="radio-circle"></div><span class="radio-text">Investidor - Financiamento (PF)</span></div>
+                    <div class="radio-item" data-v="fin_pj"><div class="radio-circle"></div><span class="radio-text">Investidor - Financiamento (PJ)</span></div>
+                    <div class="radio-item" data-v="morador"><div class="radio-circle"></div><span class="radio-text">Morador Final</span></div>
+                </div>
+            </div>
+
+            <div class="card" id="viabFinanciamentoFields" style="display: none;">
+                <div class="card-title"><span class="emoji">🏦</span> Dados do Financiamento</div>
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="label">Valor entrada (R$)</label>
+                        <input type="text" class="input" id="viabEntrada" placeholder="200.000">
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Taxa juros (% a.m.)</label>
+                        <input type="number" step="0.1" class="input" id="viabTaxaJuros" value="1.5" placeholder="1.5">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="btnCalcularViabilidade" style="width: 100%; margin-top: 12px;">📊 Calcular Viabilidade</button>
+
+            <div id="viabResultados" style="display: none; margin-top: 20px;">
+                <!-- Resultados serão inseridos aqui via JavaScript -->
+            </div>
+        </section>
     </main>
 
     <nav class="bottom-nav">
@@ -988,7 +1064,7 @@
         <button class="btn btn-primary" id="btnNext">Próximo →</button>
     </nav>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDgybRoDXVTG1HeLKgvxe8rpyhVaemweEs&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=SUA_API_KEY_AQUI&libraries=places"></script>
     <script>
         // ========== CONFIGURAÇÃO DE PESOS ==========
         const PESOS = {
@@ -1040,7 +1116,7 @@
         }
 
         // ========== STATE ==========
-        const state = { section: 0, total: 8, ratings: {}, checks: {}, photos: {}, solar: {}, radios: {} };
+        const state = { section: 0, total: 9, ratings: {}, checks: {}, photos: {}, solar: {}, radios: {} };
 
         // ========== DOM ==========
         const tabs = document.querySelectorAll('.tab');
@@ -1062,7 +1138,8 @@
             btnPrev.style.visibility = state.section === 0 ? 'hidden' : 'visible';
             btnNext.style.display = state.section === state.total - 1 ? 'none' : 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            if (state.section === state.total - 1) { calculateScores(); updateResumo(); }
+            if (state.section === state.total - 2) { calculateScores(); updateResumo(); } // Seção 8: Resumo
+            if (state.section === state.total - 1) { atualizarDadosViabilidade(); } // Seção 9: Viabilidade
             updateIndicators();
             save();
         }
@@ -1423,6 +1500,253 @@
             }
         });
 
+        // ========== VIABILIDADE FINANCEIRA ==========
+        
+        // Auto-preencher dados da Seção 1
+        function atualizarDadosViabilidade() {
+            const valorPedido = document.getElementById('valorPedido')?.value || '0';
+            const area = document.getElementById('area')?.value || '0';
+            const cond = document.getElementById('valorCondominio')?.value || '0';
+            const iptu = document.getElementById('iptu')?.value || '0';
+            const quadrante = document.getElementById('quadrante')?.value || '';
+            
+            document.getElementById('viabValorCompra').value = valorPedido;
+            document.getElementById('viabMetragem').value = area;
+            document.getElementById('viabCondominio').value = cond;
+            document.getElementById('viabIptu').value = iptu;
+            
+            // Sugestão de preço por quadrante
+            const sugestoesQuadrante = {
+                'Q1': 'R$ 10.000-12.000/m²', 'Q2': 'R$ 9.500-10.000/m²', 'Q3': 'R$ 9.500-10.000/m²',
+                'Q4': 'R$ 9.000-9.500/m²', 'Q5': 'R$ 11.000-12.000/m²', 'Q6': 'R$ 8.500-9.000/m²',
+                'Q7': 'R$ 8.000-8.500/m²', 'Q8': 'R$ 7.500-8.000/m²', 'Q9': 'R$ 8.500-10.000/m²'
+            };
+            
+            const sugestao = sugestoesQuadrante[quadrante] || 'Detecte o quadrante primeiro';
+            document.getElementById('viabSugestaoQuadrante').textContent = quadrante ? `💡 Faixa ${quadrante}: ${sugestao}` : '';
+        }
+        
+        // Mostrar/esconder campos de financiamento
+        document.querySelectorAll('#viabTipoOperacao .radio-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tipo = item.dataset.v;
+                const finFields = document.getElementById('viabFinanciamentoFields');
+                finFields.style.display = (tipo === 'fin_pf' || tipo === 'fin_pj') ? 'block' : 'none';
+            });
+        });
+        
+        // Calcular viabilidade
+        document.getElementById('btnCalcularViabilidade').addEventListener('click', () => {
+            // Pegar dados
+            const valorCompra = parseFloat((document.getElementById('viabValorCompra').value || '0').replace(/\./g, '').replace(',', '.'));
+            const metragem = parseFloat(document.getElementById('viabMetragem').value || '0');
+            const custoReforma = parseFloat(document.getElementById('viabCustoReforma').value || '0');
+            const precoVenda = parseFloat(document.getElementById('viabPrecoVenda').value || '0');
+            const condominio = parseFloat((document.getElementById('viabCondominio').value || '0').replace(/\./g, '').replace(',', '.'));
+            const iptu = parseFloat((document.getElementById('viabIptu').value || '0').replace(/\./g, '').replace(',', '.'));
+            const mesesObra = parseInt(document.getElementById('viabMesesObra').value || '3');
+            const mesesVenda = parseInt(document.getElementById('viabMesesVenda').value || '3');
+            
+            const tipoOperacao = document.querySelector('#viabTipoOperacao .radio-item.active')?.dataset.v || 'cp_pf';
+            
+            // Validar
+            if (!valorCompra || !metragem || !custoReforma || !precoVenda) {
+                alert('⚠️ Preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            const mesesTotal = mesesObra + mesesVenda;
+            
+            let resultadosHTML = '';
+            
+            if (tipoOperacao === 'morador') {
+                // Morador Final - apenas custo total
+                const itbi = valorCompra * 0.04;
+                const reformaTotal = metragem * custoReforma;
+                const investimentoTotal = valorCompra + itbi + reformaTotal;
+                
+                resultadosHTML = `
+                    <div class="card" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 1px solid #7dd3fc;">
+                        <div class="card-title" style="color: #0369a1;"><span class="emoji">🏠</span> Custo Total para Morar</div>
+                        <div style="font-size: 0.875rem; color: #075985; line-height: 1.8;">
+                            <strong>💰 INVESTIMENTO NECESSÁRIO:</strong><br>
+                            Compra: R$ ${valorCompra.toLocaleString('pt-BR')}<br>
+                            ITBI + Cartório (4%): R$ ${itbi.toLocaleString('pt-BR')}<br>
+                            Reforma (R$ ${custoReforma}/m²): R$ ${reformaTotal.toLocaleString('pt-BR')}<br>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #7dd3fc;">
+                            <strong style="font-size: 1.125rem;">TOTAL: R$ ${investimentoTotal.toLocaleString('pt-BR')}</strong><br>
+                            <span style="font-size: 0.75rem;">Sem holding costs, juros ou impostos de venda</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // INVESTIDOR - Mostrar todos os 4 tipos simultaneamente
+                const entrada = parseFloat((document.getElementById('viabEntrada').value || '0').replace(/\./g, '').replace(',', '.'));
+                const taxaJuros = parseFloat(document.getElementById('viabTaxaJuros').value || '1.5') / 100;
+                
+                const tiposOperacao = [
+                    { id: 'cp_pf', nome: 'Capital Próprio PF', temFinanc: false, isPJ: false },
+                    { id: 'cp_pj', nome: 'Capital Próprio PJ', temFinanc: false, isPJ: true },
+                    { id: 'fin_pf', nome: 'Financiamento PF', temFinanc: true, isPJ: false },
+                    { id: 'fin_pj', nome: 'Financiamento PJ', temFinanc: true, isPJ: true }
+                ];
+                
+                const cenarios = [
+                    { nome: '-10%', desconto: 0.10 },
+                    { nome: '-5%', desconto: 0.05 },
+                    { nome: 'Cheio', desconto: 0 }
+                ];
+                
+                // Cabeçalho
+                resultadosHTML = `
+                    <div class="card">
+                        <div class="card-title"><span class="emoji">📊</span> Comparativo de Cenários</div>
+                        <p style="font-size: 0.75rem; color: var(--text-light); margin-bottom: 12px;">Arraste para o lado para ver todos os cenários →</p>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; min-width: 900px; border-collapse: collapse; font-size: 0.8125rem;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th style="padding: 12px; text-align: left; font-weight: 600;">Tipo</th>
+                                        <th style="padding: 12px; text-align: center; font-weight: 600;">Investimento</th>
+                                        <th style="padding: 12px; text-align: center; font-weight: 600; background: #fef3c7;">-10%</th>
+                                        <th style="padding: 12px; text-align: center; font-weight: 600; background: #dbeafe;">-5%</th>
+                                        <th style="padding: 12px; text-align: center; font-weight: 600; background: #dcfce7;">Cheio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                tiposOperacao.forEach(tipo => {
+                    // Calcular investimento
+                    const itbi = valorCompra * 0.04;
+                    const reformaTotal = metragem * custoReforma;
+                    const holdingCosts = (condominio + iptu) * mesesTotal;
+                    
+                    let investimentoTotal = valorCompra + itbi + reformaTotal + holdingCosts;
+                    let juros = 0;
+                    let valorFinanciado = 0;
+                    
+                    if (tipo.temFinanc) {
+                        valorFinanciado = valorCompra - entrada;
+                        juros = taxaJuros * valorFinanciado * mesesTotal;
+                        investimentoTotal += juros;
+                    }
+                    
+                    resultadosHTML += `<tr style="border-bottom: 1px solid #e2e8f0;">`;
+                    resultadosHTML += `<td style="padding: 12px; font-weight: 600;">${tipo.nome}</td>`;
+                    resultadosHTML += `<td style="padding: 12px; text-align: center;">R$ ${investimentoTotal.toLocaleString('pt-BR', {maximumFractionDigits: 0})}</td>`;
+                    
+                    cenarios.forEach((cenario, idx) => {
+                        const valorVendaM2 = precoVenda * (1 - cenario.desconto);
+                        const valorVendaTotal = valorVendaM2 * metragem;
+                        const comissao = valorVendaTotal * 0.06;
+                        const valorLiquido = valorVendaTotal - comissao;
+                        
+                        let lucroLiquido, imposto;
+                        
+                        if (tipo.isPJ) {
+                            imposto = valorVendaTotal * 0.06;
+                            lucroLiquido = valorLiquido - investimentoTotal - imposto;
+                        } else {
+                            const ganhoCapital = valorLiquido - investimentoTotal;
+                            imposto = ganhoCapital > 0 ? ganhoCapital * 0.15 : 0;
+                            lucroLiquido = ganhoCapital - imposto;
+                        }
+                        
+                        const roi = (lucroLiquido / investimentoTotal) * 100;
+                        const lucroM2 = lucroLiquido / metragem;
+                        
+                        const corLucro = lucroLiquido > 0 ? '#10b981' : '#ef4444';
+                        const corLucroM2 = lucroM2 >= 1000 ? '#10b981' : lucroM2 >= 700 ? '#f59e0b' : '#ef4444';
+                        const bgColor = idx === 0 ? '#fef3c7' : idx === 1 ? '#dbeafe' : '#dcfce7';
+                        
+                        resultadosHTML += `
+                            <td style="padding: 12px; text-align: center; background: ${bgColor};">
+                                <strong style="color: ${corLucro};">R$ ${lucroLiquido.toLocaleString('pt-BR', {maximumFractionDigits: 0})}</strong><br>
+                                <span style="font-size: 0.75rem;">ROI: ${roi.toFixed(1)}%</span><br>
+                                <span style="font-size: 0.75rem; color: ${corLucroM2};">R$ ${lucroM2.toFixed(0)}/m²</span>
+                            </td>
+                        `;
+                    });
+                    
+                    resultadosHTML += `</tr>`;
+                });
+                
+                resultadosHTML += `
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 12px; padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 0.75rem; color: var(--text-light);">
+                            <strong>Legenda:</strong> Lucro Líquido | ROI | Lucro/m²<br>
+                            🟢 Lucro/m² ≥ R$ 1.000: Excelente | 🟡 R$ 700-1.000: Margem apertada | 🔴 < R$ 700: Arriscado
+                        </div>
+                    </div>
+                `;
+                
+                // Detalhamento do investimento
+                const itbi = valorCompra * 0.04;
+                const reformaTotal = metragem * custoReforma;
+                const holdingCosts = (condominio + iptu) * mesesTotal;
+                
+                resultadosHTML += `
+                    <div class="card">
+                        <div class="card-title"><span class="emoji">💰</span> Composição do Investimento</div>
+                        <div style="font-size: 0.8125rem; line-height: 1.8;">
+                            Compra: R$ ${valorCompra.toLocaleString('pt-BR')}<br>
+                            ITBI + Cartório (4%): R$ ${itbi.toLocaleString('pt-BR')}<br>
+                            Reforma: R$ ${reformaTotal.toLocaleString('pt-BR')} (${custoReforma}/m²)<br>
+                            Holding (${mesesTotal} meses): R$ ${holdingCosts.toLocaleString('pt-BR')}<br>
+                            ${entrada > 0 ? `<strong>+ Juros financiamento:</strong> variam por cenário<br>` : ''}
+                            <hr style="margin: 10px 0;">
+                            <strong>Base: R$ ${(valorCompra + itbi + reformaTotal + holdingCosts).toLocaleString('pt-BR')}</strong>
+                        </div>
+                    </div>
+                `;
+                
+                // Comparativo com quadrante
+                const quadrante = document.getElementById('quadrante')?.value;
+                if (quadrante) {
+                    const faixasQuadrante = {
+                        'Q1': [10000, 12000], 'Q2': [9500, 10000], 'Q3': [9500, 10000],
+                        'Q4': [9000, 9500], 'Q5': [11000, 12000], 'Q6': [8500, 9000],
+                        'Q7': [8000, 8500], 'Q8': [7500, 8000], 'Q9': [8500, 10000]
+                    };
+                    
+                    const faixa = faixasQuadrante[quadrante];
+                    if (faixa) {
+                        let statusPreco, corPreco;
+                        if (precoVenda < faixa[0]) {
+                            statusPreco = `⚠️ ${((1 - precoVenda/faixa[0]) * 100).toFixed(0)}% abaixo do piso - pode indicar problema`;
+                            corPreco = '#f59e0b';
+                        } else if (precoVenda > faixa[1]) {
+                            statusPreco = `⚠️ ${((precoVenda/faixa[1] - 1) * 100).toFixed(0)}% acima do teto - pode demorar venda`;
+                            corPreco = '#ef4444';
+                        } else {
+                            statusPreco = '✅ Dentro da faixa de mercado';
+                            corPreco = '#10b981';
+                        }
+                        
+                        resultadosHTML += `
+                            <div class="card" style="background: #f9fafb;">
+                                <div class="card-title"><span class="emoji">📊</span> Comparativo com ${quadrante}</div>
+                                <div style="font-size: 0.875rem; line-height: 1.8;">
+                                    Preço pretendido: R$ ${precoVenda.toLocaleString('pt-BR')}/m²<br>
+                                    Faixa ${quadrante}: R$ ${faixa[0].toLocaleString('pt-BR')}-${faixa[1].toLocaleString('pt-BR')}/m²<br>
+                                    <strong style="color: ${corPreco};">${statusPreco}</strong>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            document.getElementById('viabResultados').innerHTML = resultadosHTML;
+            document.getElementById('viabResultados').style.display = 'block';
+        });
+        
+        // Auto-atualizar dados da viabilidade quando navega para seção 9
+        const updateUIOriginal = updateUI;
+        
         // ========== AUTO-SAVE ==========
         document.querySelectorAll('input, select, textarea').forEach(el => { el.addEventListener('change', () => { save(); updateIndicators(); }); });
 
