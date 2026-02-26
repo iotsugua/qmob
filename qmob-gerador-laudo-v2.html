@@ -245,6 +245,22 @@
     </style>
 </head>
 <body>
+    <!-- Aviso se não houver dados -->
+    <div id="noDataWarning" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="font-size: 4rem; margin-bottom: 16px;">⚠️</div>
+            <h2 style="margin-bottom: 12px;">Nenhum dado encontrado</h2>
+            <p style="color: #6b7280; margin-bottom: 24px;">
+                Para gerar o laudo, você precisa primeiro:<br>
+                1. Preencher a auditoria no <strong>qmob-app-v4.html</strong><br>
+                2. Clicar em <strong>"✅ Finalizar Auditoria"</strong><br>
+                3. Depois clicar em <strong>"Ver Laudo"</strong>
+            </p>
+            <button class="btn btn-outline" onclick="loadDemoData(); document.getElementById('noDataWarning').style.display='none';" style="margin-right: 8px;">📋 Carregar Demo</button>
+            <button class="btn btn-primary" onclick="window.close()">Voltar</button>
+        </div>
+    </div>
+
     <div class="control-panel">
         <div class="control-header">
             <div class="logo">
@@ -336,6 +352,11 @@
 
         function loadData() {
             const saved = localStorage.getItem('qmob_laudo');
+            console.log('🔍 Dados carregados do localStorage:', saved);
+            if (!saved) {
+                console.warn('⚠️ Nenhum dado encontrado em qmob_laudo!');
+                console.log('💡 Verifique se clicou em Finalizar no app antes de abrir o laudo');
+            }
             return saved ? JSON.parse(saved) : null;
         }
 
@@ -1052,6 +1073,17 @@ Seja direto, prático e focado em insights acionáveis para um corretor de imóv
                     modal.classList.remove('active');
                 }
             });
+        });
+
+        // Verificar se tem dados ao carregar
+        window.addEventListener('DOMContentLoaded', () => {
+            const data = loadData();
+            if (!data) {
+                console.error('❌ Nenhum dado encontrado em qmob_laudo!');
+                document.getElementById('noDataWarning').style.display = 'flex';
+            } else {
+                console.log('✅ Dados carregados com sucesso!', data);
+            }
         });
     </script>
 </body>
